@@ -1,0 +1,33 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: ardeuo_timescale
+    environment:
+      - POSTGRES_USER=admin_ardeuo
+      - POSTGRES_PASSWORD=Neskuik@123
+      - POSTGRES_DB=ardeuo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: ardeuo_broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto_config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+  python_service: # servicio que conecta a la base de datos y al broker MQTT
+    build: ./python_service
+    container_name: ardeuo_python_service
+    volumes:
+      - ./python_service:/app
+    depends_on:
+      - timescaledb
+      - mosquitto
+    restart: always
+
+volumes:
+  timescaledb_data:
