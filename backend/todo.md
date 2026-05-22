@@ -36,7 +36,62 @@ Dejar de usar datos "falsos" o de prueba.
 
 Escribir las funciones que ejecutan código SQL real (SELECT, INSERT) a través de pgxpool para buscar usuarios, validar logins y consultar la telemetría de TimescaleDB.
 
-Fase C: Conexión con React (Frontend)
+Fase C: Conexión con svelte (Frontend)
 Configurar CORS: Activar el middleware go-chi/cors para evitar que el navegador bloquee las peticiones cuando tu frontend intente conectarse.
 
 Endpoints del Dashboard: Crear las rutas definitivas que tu panel de control necesita (ej. GET /api/v1/telemetry, GET /api/v1/crops, POST /api/v1/irrigation).
+
+--------------------------------------------------
+PARTE 2
+
+ADMIN SISTEMA CARACTERISTICAS
+1. Gestión de "Tenants" (Multitenancy)
+Esta es la función más importante. Dado que tu arquitectura está diseñada para escalar, el SuperAdmin necesita ver el sistema como un conjunto de clientes:
+
+Directorio de Propietarios (Tenants): Ver cuántas fincas/propietarios están activos en el sistema.
+
+Provisionamiento: Capacidad de activar o suspender el acceso a nuevos clientes.
+
+Cuotas de Uso: Monitorear qué finca está generando más datos (qué finca está "gastando" más recursos de tu base de datos TimescaleDB) para ajustar planes de precios.
+
+2. Salud de la Infraestructura (Observabilidad)
+El SuperAdmin no mira humedad o temperatura, mira si el sistema está vivo:
+
+Estado de los Servicios: Ver si los contenedores (Go, Python, Base de datos, MQTT broker) están arriba o abajo.
+
+Logs Centralizados: Un buscador de errores de toda la plataforma. Si el backend de Go lanza un error 500, el SuperAdmin debe verlo aquí sin tener que entrar a los logs de los contenedores por terminal.
+
+Salud del Almacenamiento: Monitorear el crecimiento de la base de datos (como ya estamos haciendo con la consulta de bytes) para anticipar cuándo necesitarás más disco duro.
+
+3. Analytics del Ecosistema (Business Intelligence)
+Adopción Tecnológica: ¿Cuántos sensores hay conectados en total a través de todas las fincas?
+
+Análisis de Rendimiento: ¿Qué finca o qué tipo de cultivo está usando mejor la tecnología? (esto es oro para el marketing del Proyecto Demeter).
+
+---------------------------
+
+PROPIETARIO CARACTERISTICAS
+1. Centro de Control Administrativo (Gestión)
+Como el administrador es quien rige la operación, necesita controlar quién y qué está dentro del sistema:
+
+Gestión de Usuarios y Roles: Capacidad de crear cuentas para operarios, asignar niveles de acceso y auditar quién ha realizado qué acciones (usando tu tabla responsables_eventos).
+
+Inventario y Configuración IoT: Registro y edición de los nodos ESP32, asignación de sensores a cultivos específicos y configuración de los umbrales de alerta (ej. "si la humedad baja del 30%, disparar alerta").
+
+Gestión de Cultivos: Creación, edición y cierre de ciclos de cultivo. Aquí es donde se define la lógica de negocio que alimenta tu modelo relacional en PostgreSQL.
+
+2. Tablero de Inteligencia Agrícola (Big Data Analytics)
+Utilizando la capacidad de TimescaleDB, el administrador debe ver tendencias, no solo valores instantáneos:
+
+Análisis de Rendimiento Hídrico: Comparativa entre el consumo de agua real (eventos de riego) vs. los requerimientos hídricos del cultivo.
+
+Predicción y Estabilidad: Visualización de promedios móviles de temperatura y humedad para identificar microclimas o zonas de estrés hídrico que el operario no percibe a pie de campo.
+
+Exportación de Reportes: Generación de resúmenes mensuales (en PDF o CSV) para auditorías, presupuestos o toma de decisiones sobre insumos.
+
+3. Centro de Trazabilidad y Auditoría (Audit Log)
+Esta es la feature que "cierra el círculo" de tu arquitectura:
+
+Historial de Decisiones: Un registro completo de qué evento ocurrió, cuándo y quién fue el responsable. Esto responde a la pregunta clave: "¿Por qué se activó el riego a las 3:00 AM y quién lo autorizó?".
+
+Trazabilidad de Nodos: Si un sensor empieza a dar lecturas erróneas, el admin debe poder ver el historial de errores del nodo y decidir si necesita mantenimiento o reemplazo.

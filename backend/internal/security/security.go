@@ -35,11 +35,11 @@ func CheckPasswordHash(password, hash string) bool {
 type Claims struct {
 	UserID int    `json:"user_id"`
 	RoleID int    `json:"role_id"`
-	Email  string `json:"email"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(userID int, roleID int, email string) (string, error) {
+func GenerateJWT(userID int, roleID int, username string) (string, error) {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		return "", errors.New("JWT_SECRET is not set")
@@ -58,7 +58,7 @@ func GenerateJWT(userID int, roleID int, email string) (string, error) {
 	claims := Claims{
 		UserID: userID,
 		RoleID: roleID,
-		Email:  email,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Subject:   strconv.Itoa(userID),
 			IssuedAt:  jwt.NewNumericDate(now),
