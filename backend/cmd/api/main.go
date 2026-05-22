@@ -7,10 +7,11 @@ import (
 	"os"
 
 	"ardeuo_backend/internal/handlers"
+	appmiddleware "ardeuo_backend/internal/middleware"
 	"ardeuo_backend/internal/repository"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
 )
 
@@ -35,10 +36,20 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
+	r.Use(chimiddleware.Logger)
+	r.Use(chimiddleware.Recoverer)
 
 	r.Get("/api/users", handlers.GetUsers)
+
+	r.Post("/api/login", handlers.LoginHandler)
+
+	r.Route("/api/v1", func(router chi.Router) {
+		router.Use(appmiddleware.RequireAuth) // Middleware para proteger las rutas dentro de /api/v1
+
+		router.Get("/dashboard", func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte(`{"message": "¡Bienvenido a la bóveda secreta de Demeter!"}`))
+		})
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -46,6 +57,6 @@ func main() {
 	}
 	addr := ":" + port
 
-	fmt.Printf("🚀 El microservicio de Demeter está listo en %s\n", addr)
+	fmt.Printf("🚀 El microservicio de Ardeuo está listo en %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, r))
 }
