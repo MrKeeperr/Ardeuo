@@ -74,6 +74,7 @@ func main() {
 		router.Put("/account/username", handlers.ChangeUsernameHandler)
 
 		router.With(appmiddleware.RequireAnyOfRoles(1, 2, 3)).Get("/telemetria", handlers.ListTelemetria)
+		router.With(appmiddleware.RequireAnyOfRoles(2, 3)).Get("/cultivos/{id}/reporte-semanal", handlers.OwnerCultivoWeeklyReport)
 
 		router.Route("/admin", func(admin chi.Router) {
 			admin.Use(appmiddleware.RequireRole(1))
@@ -83,8 +84,8 @@ func main() {
 			admin.Get("/health", handlers.AdminHealth)
 		})
 
-		router.Route("/owner", func(owner chi.Router) {
-			owner.Use(appmiddleware.RequireRole(2))
+			router.Route("/owner", func(owner chi.Router) {
+				owner.Use(appmiddleware.RequireRole(2))
 
 			owner.Get("/users", handlers.OwnerListUsers)
 			owner.Post("/users", handlers.OwnerCreateUser)
@@ -102,10 +103,10 @@ func main() {
 
 			owner.Get("/umbrales", handlers.OwnerListUmbrales)
 
-			owner.Get("/audit/eventos", handlers.OwnerListAuditEvents)
-			owner.Get("/audit/nodos/{id}", handlers.OwnerListNodoAudit)
+				owner.Get("/audit/eventos", handlers.OwnerListAuditEvents)
+				owner.Get("/audit/nodos/{id}", handlers.OwnerListNodoAudit)
+			})
 		})
-	})
 
 	port := os.Getenv("PORT")
 	if port == "" {
