@@ -7,11 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 MQTT_BROKER = os.getenv("MQTT_BROKER")
 MQTT_PORT = int(os.getenv("MQTT_PORT", 1883))
@@ -22,13 +18,7 @@ MQTT_PASS = os.getenv("MQTT_PASS")
 def conectar_db():
     """Función para conectar a la base de datos TimescaleDB"""
     try:
-        conn = psycopg2.connect(
-            host=DB_HOST,
-            port=DB_PORT,
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASS
-        )
+        conn = psycopg2.connect(DATABASE_URL)
         print("✅ [DB] Conectado exitosamente a TimescaleDB")
         return conn
     except Exception as e:
