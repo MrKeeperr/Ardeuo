@@ -73,6 +73,8 @@ func main() {
 		router.Put("/account/password", handlers.ChangePasswordHandler)
 		router.Put("/account/username", handlers.ChangeUsernameHandler)
 
+		router.With(appmiddleware.RequireAnyOfRoles(1, 2, 3)).Get("/telemetria", handlers.ListTelemetria)
+
 		router.Route("/admin", func(admin chi.Router) {
 			admin.Use(appmiddleware.RequireRole(1))
 			admin.Get("/tenants", handlers.AdminListTenants)
