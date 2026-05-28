@@ -1,2 +1,4 @@
 /backend/seed
 *.env
+*.md
+*.backup
